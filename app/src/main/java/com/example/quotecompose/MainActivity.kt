@@ -3,23 +3,49 @@ package com.example.quotecompose
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.activity.viewModels
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.quotecompose.screen.ListShow
-import com.example.quotecompose.ui.theme.QuoteComposeTheme
+import com.example.quotecompose.screen.QuoteDetails
+import com.example.quotecompose.screen.QuoteListItem
+import com.example.quotecompose.screen.onClick
+import com.example.quotecompose.viewmodel.ViewModelQuote
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    private val viewModel by viewModels<ViewModelQuote>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        CoroutineScope(Dispatchers.IO).launch {
+            DataManager.getQuoteItem(applicationContext)
+        }
         setContent {
-            ListShow()
+            ShowData()
         }
     }
 }
 
+
+@Composable
+fun ShowData(){
+    if (DataManager.isDataCome.value){
+        if (DataManager.currentPage.value == StatePages.LISTING){
+            //QuoteListItem(data = DataManager.data, onClick = {q -> onClick(q) })
+            LazyColumn {
+                items(DataManager.data) {
+                    QuoteListItem(data = it) { quoteData  -> DataManager.switchPage(quoteData) }
+                }
+            }
+        }else{
+            QuoteDetails(DataManager.currentQuote!!)
+        }
+    }
+}
+
+
+enum class StatePages{
+    LISTING, DETAILS
+}
