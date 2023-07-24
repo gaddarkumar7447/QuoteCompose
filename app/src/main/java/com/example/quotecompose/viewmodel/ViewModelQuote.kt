@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 
 class ViewModelQuote : ViewModel(){
 
-    private val apiInstance: QuoteServices = ApiInstance.getApiInstance().create(QuoteServices::class.java)
+    private val apiInstance: QuoteServices = ApiInstance.instance
 
     private val _mutableLiveData : MutableLiveData<List<Result>> = MutableLiveData()
     val liveData : LiveData<List<Result>> = _mutableLiveData
